@@ -1,5 +1,4 @@
-# Lab: Vault on K8S
-## With an init container
+# Lab: Vault on K8S using an init container
 
 ## Introduction
 This will take a while. I've done some of the work for you, to get you started, but there's a long way to go and a lot of stuff to understand.
@@ -24,8 +23,10 @@ We will cover more of the theory behind this lab next week.
 5. Some cool stuff about using colours in your bash output :)
 
 ## How to get started
-Most of the interesting code is either in the Makefile or in platform/vault. I think you should start by reading the makefile, then the config.sh file (which does most of the hard work for you).
+The makefile will create your cluster, conigure helm repos, etc. just like the previous labs. It will also install consul and vault. You shoud read how it does that, and look at the helm values files. Once that is run, you should open a terminal and change to the `platform/vault` directory which is where the real fun starts. You can run the `config.sh` file you find there and it'll do most of the work for you, but getting it running isn't the only aim of the lab -- the main aim is to work out for yourself what its doing, how, and why.
 
+## Note:
+There are some extra directories that we're not using (yet), like the `app/corpora` directory. You can ignore these (though it might give you some light relief to play with it).
 
 ---
 # Extension
