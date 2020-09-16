@@ -37,7 +37,7 @@ cluster:
 	    -v /var/run/docker.sock:/var/run/docker.sock \
 	    --agents 3
 
-install: install-consul install-vault install-prometheus
+install: install-consul install-vault
 
 install-corpora:
 	kubectl apply -f apps/corpora
@@ -54,7 +54,6 @@ delete-consul:
 install-vault:
 	helm install vault hashicorp/vault -f platform/vault/values.yaml -n vault | tee -a output.log
 	sudo snap install vault
-	cd platform/vault && config.sh
 
 delete-vault:
 	helm delete -n vault vault
