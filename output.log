@@ -1,0 +1,63 @@
+NAME: vault
+LAST DEPLOYED: Wed Sep 16 22:58:44 2020
+NAMESPACE: vault
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  $ helm status vault
+  $ helm get vault
+NAME: vault
+LAST DEPLOYED: Wed Sep 16 23:01:00 2020
+NAMESPACE: vault
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  $ helm status vault
+  $ helm get vault
+NAME: consul
+LAST DEPLOYED: Wed Sep 16 23:22:27 2020
+NAMESPACE: consul
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you for installing HashiCorp Consul!
+
+Now that you have deployed Consul, you should look over the docs on using 
+Consul with Kubernetes available here: 
+
+https://www.consul.io/docs/platform/k8s/index.html
+
+
+Your release is named consul.
+
+To learn more about the release if you are using Helm 2, run:
+
+  $ helm status consul
+  $ helm get consul
+
+To learn more about the release if you are using Helm 3, run:
+
+  $ helm status consul
+  $ helm get all consul
