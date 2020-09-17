@@ -1,14 +1,31 @@
-.PHONY: up down init cluster install
+.PHONY: up down init cluster install uninstall logs repos namespaces cluster-down clean provision
 
 up: cluster init install
 
-down:
+down: cluster-down
+
+cluster-down:
 	k3d cluster delete vault-labs
 
-init: logs repos namespaces
-
+clean: logs
+	
 provision:
 	sudo snap install vault
+
+cluster:
+	k3d cluster create vault-labs \
+	    -p 80:80@loadbalancer \
+	    -p 443:443@loadbalancer \
+	    -p 30000-32767:30000-32767@server[0] \
+	    -v /etc/machine-id:/etc/machine-id:ro \
+	    -v /var/log/journal:/var/log/journal:ro \
+	    -v /var/run/docker.sock:/var/run/docker.sock \
+		--k3s-server-arg '--no-deploy=traefik' \
+	    --agents 3
+
+init: logs repos namespaces
+install: install-service-mesh install-ingress install-logging install-monitoring
+uninstall: delete-service-mesh delete-ingress delete-logging delete-monitoring
 
 logs:
 	touch output.log
@@ -27,23 +44,12 @@ repos:
 namespaces:
 	kubectl apply -f init
 
-cluster:
-	k3d cluster create vault-labs \
-	    -p 80:80@loadbalancer \
-	    -p 443:443@loadbalancer \
-	    -p 30000-32767:30000-32767@server[0] \
-	    -v /etc/machine-id:/etc/machine-id:ro \
-	    -v /var/log/journal:/var/log/journal:ro \
-	    -v /var/run/docker.sock:/var/run/docker.sock \
-	    --agents 3
-
-install: install-service-mesh install-ingress install-logging install-monitoring
 
 install-corpora:
 	kubectl apply -f apps/corpora
 
 delete-corpora:
-	kubectl delete -f apps/corpora
+	kubectl delete -f apps/corpora 2>/dev/null | true
 
 install-service-mesh:
 	echo "Service-Mesh: install" | tee -a output.log
@@ -51,7 +57,7 @@ install-service-mesh:
 
 delete-service-mesh:
 	echo "Service-Mesh: delete" | tee -a output.log
-	helm delete -n service-mesh consul
+	helm delete -n service-mesh consul 2>/dev/null | true
 
 install-secrets:
 	echo "Secrets: install" | tee -a output.log
@@ -59,7 +65,7 @@ install-secrets:
 
 delete-secrets:
 	echo "Secrets: delete" | tee -a output.log
-	helm delete -n secrets vault
+	helm delete -n secrets vault 2>/dev/null | true
 
 install-ingress:
 	echo "Ingress: install" | tee -a output.log
@@ -67,7 +73,7 @@ install-ingress:
 
 delete-ingress:
 	echo "Ingress: delete" | tee -a output.log
-	kubectl delete -n ingress -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml | tee -a output.log
+	kubectl delete -n ingress -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml | tee -a output.log 2>/dev/null | true
 
 install-monitoring: install-prometheus install-grafana
 delete-monitoring: delete-prometheus delete-grafana
@@ -78,7 +84,7 @@ install-prometheus:
 
 delete-prometheus:
 	echo "Monitoring: delete-prometheus" | tee -a output.log
-	helm delete -n monitoring prometheus
+	helm delete -n monitoring prometheus 2>/dev/null | true
 
 install-grafana:
 	echo "Monitoring: install-grafana" | tee -a output.log
@@ -86,7 +92,7 @@ install-grafana:
 
 delete-grafana:
 	echo "Monitoring: delete-grafana" | tee -a output.log
-	helm delete -n monitoring grafana
+	helm delete -n monitoring grafana 2>/dev/null | true
 
 install-logging:
 	echo "Logging: install-elasticsearch" | tee -a output.log
@@ -96,10 +102,10 @@ install-logging:
 	echo "Logging: install-kibana" | tee -a output.log
 	helm install kibana elastic/kibana -n logging -f platform/logging/kibana-values.yaml | tee -a output.log
 
-delete-monitoring:
+delete-logging:
 	echo "Logging: delete-elasticsearch" | tee -a output.log
-	helm delete elasticsearch -n logging  | tee -a output.log
+	helm delete elasticsearch -n logging  | tee -a output.log 2>/dev/null | true
 	echo "Logging: delete-elasticsearch" | tee -a output.log
-	helm delete fluent-bit -n logging | tee -a output.log
+	helm delete fluent-bit -n logging | tee -a output.log 2>/dev/null | true
 	echo "Logging: delete-elasticsearch" | tee -a output.log
-	helm delete kibana elastic/kibana -n logging | tee -a output.log
+	helm delete kibana elastic/kibana -n logging | tee -a output.log 2>/dev/null | true
