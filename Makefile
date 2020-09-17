@@ -5,9 +5,6 @@ up: cluster init install
 down:
 	k3d cluster delete vault-labs
 
-list:
-	helm list --all-namespaces
-
 init: logs repos namespaces
 
 provision:
@@ -15,12 +12,16 @@ provision:
 
 logs:
 	touch output.log
+	rm -f output.log
+	touch output.log
 
 repos:
 	helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 	helm repo add hashicorp https://helm.releases.hashicorp.com
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo add grafana https://grafana.github.io/helm-charts
+	helm repo add elastic https://helm.elastic.co
+	helm repo add fluent https://fluent.github.io/helm-charts
 	helm repo update
 
 namespaces:
@@ -36,7 +37,7 @@ cluster:
 	    -v /var/run/docker.sock:/var/run/docker.sock \
 	    --agents 3
 
-install: install-consul install-vault
+install: install-service-mesh install-ingress install-logging install-monitoring
 
 install-corpora:
 	kubectl apply -f apps/corpora
@@ -44,33 +45,61 @@ install-corpora:
 delete-corpora:
 	kubectl delete -f apps/corpora
 
-install-consul:
-	helm install consul hashicorp/consul -f platform/service-mesh/values.yaml -n service-mesh | tee -a output.log
+install-service-mesh:
+	echo "Service-Mesh: install" | tee -a output.log
+	helm install consul hashicorp/consul -n service-mesh -f platform/service-mesh/values.yaml | tee -a output.log
 
-delete-consul:
+delete-service-mesh:
+	echo "Service-Mesh: delete" | tee -a output.log
 	helm delete -n service-mesh consul
 
-install-vault:
-	helm install vault hashicorp/vault -f platform/secrets/values.yaml -n secrets | tee -a output.log
+install-secrets:
+	echo "Secrets: install" | tee -a output.log
+	helm install vault hashicorp/vault -n secrets -f platform/secrets/values.yaml | tee -a output.log
 
-delete-vault:
+delete-secrets:
+	echo "Secrets: delete" | tee -a output.log
 	helm delete -n secrets vault
 
-install-ingress-nginx:
+install-ingress:
+	echo "Ingress: install" | tee -a output.log
 	kubectl apply -n ingress -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml | tee -a output.log
 
-delete-ingress-nginx:
+delete-ingress:
+	echo "Ingress: delete" | tee -a output.log
 	kubectl delete -n ingress -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml | tee -a output.log
 
+install-monitoring: install-prometheus install-grafana
+delete-monitoring: delete-prometheus delete-grafana
+
 install-prometheus:
+	echo "Monitoring: install-grafana" | tee -a output.log
 	helm install -n monitoring -f platform/monitoring/prometheus-values.yaml prometheus prometheus-community/prometheus| tee -a output.log
 
 delete-prometheus:
+	echo "Monitoring: delete-prometheus" | tee -a output.log
 	helm delete -n monitoring prometheus
 
 install-grafana:
-	helm install -n monitoring -f platform/monitoring/grafana-values.yaml grafana grafana/grafana | tee -a output.log
+	echo "Monitoring: install-grafana" | tee -a output.log
+	helm install grafana grafana/grafana -n monitoring -f platform/monitoring/grafana-values.yaml | tee -a output.log
 
 delete-grafana:
+	echo "Monitoring: delete-grafana" | tee -a output.log
 	helm delete -n monitoring grafana
 
+install-logging:
+	echo "Logging: install-elasticsearch" | tee -a output.log
+	helm install elasticsearch elastic/elasticsearch -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+	echo "Logging: install-fluent-bit" | tee -a output.log
+	helm install fluent-bit fluent/fluent-bit -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+	echo "Logging: install-kibana" | tee -a output.log
+	helm install kibana elastic/kibana -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+
+delete-monitoring:
+	echo "Logging: delete-elasticsearch" | tee -a output.log
+	helm delete elasticsearch -n logging  | tee -a output.log
+	echo "Logging: delete-elasticsearch" | tee -a output.log
+	helm delete fluent-bit -n logging | tee -a output.log
+	echo "Logging: delete-elasticsearch" | tee -a output.log
+	helm delete kibana elastic/kibana -n logging | tee -a output.log
