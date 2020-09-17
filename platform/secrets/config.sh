@@ -20,15 +20,15 @@ kubectl apply -f crb.yaml
 
 # These things are needed to configure the vault k8s auth method
 # Set VAULT_SA_NAME to the service account secret name
-export VAULT_SA_NAME=$(kubectl get sa vault-auth -n vault -o jsonpath="{.secrets[*]['name']}")
+export VAULT_SA_NAME=$(kubectl get sa vault-auth -n secrets -o jsonpath="{.secrets[*]['name']}")
 # Set SA_JWT_TOKEN value to the service account JWT used to access the TokenReview API
-export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n vault -o jsonpath="{.data.token}" | base64 --decode; echo)
+export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n secrets -o jsonpath="{.data.token}" | base64 --decode; echo)
 # Set SA_CA_CRT to the PEM encoded CA cert used to talk to Kubernetes API
-export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n vault -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n secrets -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
 
 export K8S_HOST="https://kubernetes.default.svc:443"
 
-export VAULT_PORT=$(kubectl get svc vault-ui -n vault -o json | jq '.spec.ports[0].nodePort')
+export VAULT_PORT=$(kubectl get svc vault-ui -n secrets -o json | jq '.spec.ports[0].nodePort')
 export VAULT_ADDR=http://localhost:$VAULT_PORT
 export VAULT_TOKEN=root
 
@@ -67,7 +67,7 @@ echo -e "${Red}At this point you're meant to run the stuff in the verify functio
 function verify {
     # You're meant to run this manually, 1 line at a time. I've put this code in a function so that it doesn't run as part of the outter script
     # Notice how we talk to vault at the addres, http://vault:8200, because we're inside the cluster
-    kubectl run mypine --image alpine -it --rm --serviceaccount=vault-auth -n vault
+    kubectl run mypine --image alpine -it --rm --serviceaccount=vault-auth -n secrets
     apk add curl jq
     echo "Confirm connectivity" 
     curl -s http://vault:8200/v1/sys/seal-status | jq 
@@ -79,14 +79,11 @@ function verify {
 }
 
 echo -e "${Green}Configuring an init container${Reset}"
-kubectl apply -f agent-autoauth-config.yaml
+kubectl apply -f agent-autoauth-config.yaml -n secrets
 
 echo -e "${Green}Create a sample app with nginx which will just return a page with the secret from vault we created earlier${Reset}"
-kubectl apply -f example-pod-spec.yaml
-
-kubectl port-forward pod/vault-agent-example 8080:80
-
+kubectl apply -f example-pod-spec.yaml -n secrets
 
 echo -e "${Green}${Reset}"
-echo -e "${Green}${Reset}"
-echo -e "${Green}${Reset}"
+kubectl port-forward pod/vault-agent-example 8080:80 -n secrets
+

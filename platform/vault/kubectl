@@ -1,1 +1,0 @@
-vault exec vault-0 -- vault policy write myapp-kv-ro -
