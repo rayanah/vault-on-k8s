@@ -90,11 +90,11 @@ delete-grafana:
 
 install-logging:
 	echo "Logging: install-elasticsearch" | tee -a output.log
-	helm install elasticsearch elastic/elasticsearch -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+	helm install elasticsearch elastic/elasticsearch -n logging -f platform/logging/elastic-values.yaml | tee -a output.log
 	echo "Logging: install-fluent-bit" | tee -a output.log
-	helm install fluent-bit fluent/fluent-bit -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+	helm install fluent-bit fluent/fluent-bit -n logging -f platform/logging/fluent-values.yaml | tee -a output.log
 	echo "Logging: install-kibana" | tee -a output.log
-	helm install kibana elastic/kibana -n logging -f platform/monitoring/elastic-values.yaml | tee -a output.log
+	helm install kibana elastic/kibana -n logging -f platform/logging/kibana-values.yaml | tee -a output.log
 
 delete-monitoring:
 	echo "Logging: delete-elasticsearch" | tee -a output.log
