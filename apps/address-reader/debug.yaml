@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: address-reader
+  namespace: apps
+spec:
+  selector:
+    app: address-reader
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: address-reader
+  namespace: database
+spec:
+  serviceAccountName: vault-auth
+
+  containers:
+  - image: bryandollery/address-reader
+    name: address-reader
+
