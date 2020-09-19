@@ -39,17 +39,29 @@ repos:
 	helm repo add grafana https://grafana.github.io/helm-charts
 	helm repo add elastic https://helm.elastic.co
 	helm repo add fluent https://fluent.github.io/helm-charts
+	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
 
 namespaces:
-	kubectl apply -f init
+	kubectl apply -f platform/init
 
 
-install-corpora:
+install-app-corpora:
+	echo "App-Corpora: install" | tee -a output.log
 	kubectl apply -f apps/corpora
 
-delete-corpora:
+delete-app-corpora:
+	echo "App-Corpora: delete" | tee -a output.log
 	kubectl delete -f apps/corpora 2>/dev/null | true
+
+install-app-address-reader:
+	echo "App-Address-Reader: install" | tee -a output.log
+	cd apps/address-reader && $$(./init.sh)
+	kubectl apply -f apps/address-reader/address-reader.yaml
+
+delete-app-address-reader:
+	echo "App-Address-Reader: delete" | tee -a output.log
+	kubectl delete -f apps/address-reader/address-reader.yaml
 
 install-service-mesh:
 	echo "Service-Mesh: install" | tee -a output.log
@@ -110,3 +122,13 @@ delete-logging:
 	helm delete fluent-bit -n logging | tee -a output.log 2>/dev/null | true
 	echo "Logging: delete-elasticsearch" | tee -a output.log
 	helm delete kibana elastic/kibana -n logging | tee -a output.log 2>/dev/null | true
+
+
+install-database:
+	echo "Logging: install-database" | tee -a output.log
+	helm install database bitnami/postgresql -n database -f apps/database/values.yaml | tee -a output.log
+
+delete-database:
+	echo "Logging: delete-database" | tee -a output.log
+	helm delete database -n database | tee -a output.log
+

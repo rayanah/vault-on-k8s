@@ -1,0 +1,5 @@
+global:
+  postgresql:
+    postgresqlUsername: wibble
+    postgresqlPassword: wobble
+
