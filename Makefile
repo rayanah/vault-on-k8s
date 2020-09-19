@@ -24,8 +24,8 @@ cluster:
 	    --agents 3
 
 init: logs repos namespaces
-install: install-service-mesh install-ingress install-logging install-monitoring
-uninstall: delete-service-mesh delete-ingress delete-logging delete-monitoring
+install: install-service-mesh install-ingress install-logging install-monitoring install-secrets
+uninstall: delete-service-mesh delete-ingress delete-logging delete-monitoring delete-secrets
 
 logs:
 	touch output.log
