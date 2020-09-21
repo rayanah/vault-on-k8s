@@ -56,7 +56,7 @@ delete-app-corpora:
 
 install-app-address-reader:
 	echo "App-Address-Reader: install" | tee -a output.log
-	cd apps/address-reader && $$(./init.sh)
+	cd apps/address-reader && make 
 	kubectl apply -f apps/address-reader/address-reader.yaml
 
 delete-app-address-reader:

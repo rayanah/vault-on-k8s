@@ -1,4 +1,4 @@
-all: init deploy
+all: deploy
 
 bryan: build push
 
