@@ -11,8 +11,5 @@ push:
 test:
 	kubectl run --image bryandollery/address-reader --rm -it --command -- bash
 
-init:
-	./init.sh
-
 deploy:
 	kubectl apply -f address-reader.yaml
