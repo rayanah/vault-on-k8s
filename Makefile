@@ -45,12 +45,18 @@ repos:
 namespaces:
 	kubectl apply -f init
 
-
 install-corpora:
 	kubectl apply -f apps/corpora
 
 delete-corpora:
 	kubectl delete -f apps/corpora 2>/dev/null | true
+
+install-cicd:
+	kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
+delete-cicd:
+	kubectl delete -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
 
 install-dashboard:
 	echo "Dashboard: install" | tee -a output.log
