@@ -39,6 +39,7 @@ repos:
 	helm repo add grafana https://grafana.github.io/helm-charts
 	helm repo add elastic https://helm.elastic.co
 	helm repo add fluent https://fluent.github.io/helm-charts
+	helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 	helm repo update
 
 namespaces:
@@ -50,6 +51,14 @@ install-corpora:
 
 delete-corpora:
 	kubectl delete -f apps/corpora 2>/dev/null | true
+
+install-dashboard:
+	echo "Dashboard: install" | tee -a output.log
+	helm install dashboard kubernetes-dashboard/kubernetes-dashboard -n dashboard -f platform/dashboard/values.yaml
+
+delete-dashboard:
+	echo "Dashboard: delete" | tee -a output.log
+	helm delete -n dashboard dashboard 2>/dev/null | true
 
 install-service-mesh:
 	echo "Service-Mesh: install" | tee -a output.log
