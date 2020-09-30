@@ -1,0 +1,67 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: parallel-pipeline
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: message
+      type: string
+
+  workspaces:
+    - name: ws
+
+  tasks:
+    - name: starter          # Tasks that does not declare a runAfter property
+      taskRef:               # will start execution immediately
+        name: persist-param
+      params:
+        - name: message
+          value: $(params.message)
+      workspaces:
+        - name: task-ws
+          workspace: ws
+          subPath: init
+
+    - name: upper
+      runAfter:               # Note the use of runAfter here to declare that this task
+        - starter             # depends on a previous task
+      taskRef:
+        name: to-upper
+      params:
+        - name: input-path
+          value: init/message
+      workspaces:
+        - name: w
+          workspace: ws
+
+    - name: lower
+      runAfter:
+        - starter
+      taskRef:
+        name: to-lower
+      params:
+        - name: input-path
+          value: init/message
+      workspaces:
+        - name: w
+          workspace: ws
+
+    - name: reporter          # This task does not use workspace and may be scheduled to
+      runAfter:               # any Node in the cluster.
+        - upper
+      taskRef:
+        name: result-reporter
+      params:
+        - name: result-to-report
+          value: $(tasks.upper.results.message)  # A result from a previous task is used as param
+
+    - name: validator         # This task validate the output from upper and lower Task
+      runAfter:               # It does not strictly depend on the reporter Task
+        - reporter            # But you may want to skip this task if the reporter Task fail
+        - lower
+      taskRef:
+        name: validator
+      workspaces:
+        - name: files
+          workspace: ws

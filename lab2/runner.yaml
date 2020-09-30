@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: git-clone-checking-out-a-branch
+  namespace: tekton-pipelines
+spec:
+  podTemplate:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: "tekton.dev/pipelineRun"
+              operator: In
+              values:
+              - git-clone-checking-out-a-branch
+          topologyKey: kubernetes.io/hostname
+  pipelineRef:
+    name: cat-branch-readme
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Mi
+  params:
+  - name: repo-url
+    value: https://github.com/KnowledgeHut-AWS/katacoda-labs.git
+  - name: branch-name
+    value: master

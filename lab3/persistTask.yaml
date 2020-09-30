@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: persist-param
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: message
+      type: string
+  results:
+    - name: message
+      description: A result message
+  steps:
+    - name: write
+      image: ubuntu
+      script: echo $(params.message) | tee $(workspaces.task-ws.path)/message $(results.message.path)
+  workspaces:
+    - name: task-ws

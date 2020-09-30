@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: sum-params
+  namespace: tekton-pipelines
+  annotations:
+    description: |
+      A simple task that sums the two provided integers
+spec:
+  params:
+  - name: a
+    type: string
+    default: "1"
+    description: The first integer
+  - name: b
+    type: string
+    default: "1"
+    description: The second integer
+  steps:
+  - name: sum
+    image: bash:latest
+    script: |
+      #!/usr/bin/env bash
+      echo -n $(( "$(inputs.params.a)" + "$(inputs.params.b)" ))

@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-with-params
+  namespace: tekton-pipelines
+spec:
+  params:
+  - name: pl-param-x
+    type: string
+    default: "1"
+  - name: pl-param-y
+    type: string
+    default: "1"
+  tasks:
+  - name: sum-params
+    taskRef:
+      name: sum-params
+    params:
+    - name: a
+      value: "$(params.pl-param-x)"
+    - name: b
+      value: "$(params.pl-param-y)"
+  - name: multiply-params
+    taskRef:
+      name: multiply-params
+    params:
+    - name: a
+      value: "$(params.pl-param-x)"
+    - name: b
+      value: "$(params.pl-param-y)"

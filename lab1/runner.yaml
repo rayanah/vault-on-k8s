@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipelinerun-with-params
+  namespace: tekton-pipelines
+spec:
+  params:
+  - name: pl-param-x
+    value: "100"
+  - name: pl-param-y
+    value: "500"
+  pipelineRef:
+    name: pipeline-with-params

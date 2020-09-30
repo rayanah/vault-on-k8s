@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: validator
+  namespace: tekton-pipelines
+spec:
+  steps:
+    - name: validate-upper
+      image: ubuntu
+      script: cat $(workspaces.files.path)/upper | grep HELLO\ TEKTON
+    - name: validate-lower
+      image: ubuntu
+      script: cat $(workspaces.files.path)/lower | grep hello\ tekton
+  workspaces:
+    - name: files
