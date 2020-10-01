@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: dockr-runner
+spec:
+  serviceAccountName: rayanah-docker-hub
+  taskRef:
+    name: dockr
+  params:
+  - name: IMAGE
+    value: "rayanah/office-servicev2"
+  resources:
+    inputs:
+    - name: pet-clinic
+      resourceRef:
+        name: pet-clinic

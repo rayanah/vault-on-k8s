@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: mvn-build-runner
+spec:
+  taskRef:
+    name: mvn
+  resources:
+    inputs:
+    - name: source
+      resourceRef:
+        name: source
+
